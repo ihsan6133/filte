@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IHSANS-PC</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        .header-info{
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ul-files{
+            padding: 0;
+            display: grid;
+            
+            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            list-style:none;
+        }
+
+        .file-container{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .file-name
+        {
+            text-align: center;
+            font-size:small;
+            overflow-wrap: break-word;
+            width: 100px;
+
+
+            /* white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 100px;
+            display: block;
+            overflow: hidden; */
+
+        }
+        .file-icon
+        {
+            height: 60px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Filte</h1>
+
+        <div class="header-info">
+            <span>
+                <a href="/">~</a>
+                <% path_segments.forEach((segment)=>{ %>
+                    >
+                    <a href="<%= segment.path %>"><%= segment.name %></a>
+                <% }) %>
+            </span>
+            <span><%= locals.num_files %> files, <%= locals.num_dirs %> directories. </span>
+        </div>
+        <hr>
+    </header>
+    <main>
+        <ul class="ul-files">
+            <% files.forEach((file) => { %>
+                <li>
+
+                    <a href="<%= file.path %>">
+                        <div class="file-container">
+                            <% if (file.type == "directory") { %>
+                                <img class="file-icon" src="/Dir Icon.svg" alt="Directory">
+                                
+                                
+                                
+                                <% } else { %>
+                                    <img class="file-icon" src="/File Icon.svg" alt="File">
+                                <% } %>
+                                    
+                                <span class="file-name"><%= file.name %></span>
+                                    
+                            </div>
+                                
+                        </a>
+                    </li>
+                
+            <% }); %>
+        </ul>
+    </main>
+</body>
+</html>
