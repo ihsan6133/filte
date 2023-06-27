@@ -1,0 +1,54 @@
+body
+{
+    max-width: max(75vw, 600px);
+}
+
+.header-info{
+    display: flex;
+    justify-content: space-between;
+}
+
+.ul-files{
+    padding: 0;
+    display: grid;
+    
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    list-style:none;
+}
+
+.file-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.file-name
+{
+    text-align: center;
+    font-size:small;
+    overflow-wrap: break-word;
+    width: 100px;
+
+
+    /* white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100px;
+    display: block;
+    overflow: hidden; */
+
+}
+.file-icon
+{
+    height: 60px;
+}
+
+.path-segments .segment
+{
+    color: orange;
+}
+
+.path-segments .segment:hover
+{
+    cursor: pointer;
+}

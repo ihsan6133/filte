@@ -5,13 +5,12 @@ const fs = require("fs");
 const { log } = require("console");
 
 process.chdir("D:/");
-app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 
 app.get("/", (req, res)=> {
-    res.redirect("/files/");
+    res.sendFile("/views/index.html", {root: __dirname});
 })
 
 app.get("/files(/*)?", (req, res) => {
@@ -26,7 +25,7 @@ app.get("/files(/*)?", (req, res) => {
     // Verify is the path exists 
     if (!fs.existsSync(safe_path))
     {
-        res.status(404).send(`Error: Path does not exist (${safe_path})`);
+        res.status(404).json({error: "Does not exist"});
         return;
     }
     
@@ -38,59 +37,36 @@ app.get("/files(/*)?", (req, res) => {
     }
 
     
-    // If a path is directory, send directory.ejs file with valid templates.
+    // If a path is directory, send files inside
     if (fs.lstatSync(safe_path).isDirectory())
     {
         // Loop through files and directories.
-        let num_dirs = 0;
-        let num_files = 0;
-        let files = [
 
-        ]
-        fs.readdirSync(safe_path, { withFileTypes: true }).forEach(file=>{
-            let type = null;
-            if (file.isFile())
-            {
-                num_files++;
-                type = "file";
+        fs.readdir(safe_path, {withFileTypes: true}, (error, files)=>{
+            if (error) {
+                console.error(`Error occurred: ${error}`);
+                res.status(500).json({"error": error});
             }
-            else if (file.isDirectory())
+            else
             {
-                num_dirs++
-                type = "directory";
-                
-            }
-            if (file.isFile() || file.isDirectory())
-            {
-                files.push({
-                    "name": file.name,
-                    "type": type,
-                    "path": path.join("/files", unjoined_path, encodeURIComponent(file.name))
+                res.json({
+                    error: 0,
+                    files: files.map(file=>(
+                        {
+                            name: file.name,
+                            type: ((file)=>{
+                                if (file.isDirectory()) return "directory"
+                                if (file.isFile()) return "file"
+                                if (file.isSymbolicLink()) return "symlink"
+                                else return "other"
+                            })(file),
+                            path: path.join(unjoined_path, file.name)
+                        }
+                    )),
                 })
             }
-        });
-        // Loop through the current directory path and sent individual segments to client.
-        const path_segments = [
 
-        ]
-        // console.log(`unjoined_path: ${unjoined_path}`);
-        let components = unjoined_path.slice(1).split(path.sep);
-        for (let i = 0; i < components.length; i++) {
-            const segment = {
-                name: components[i],
-                path: path.join("/files", ...components.slice(0, i + 1))
-            };
-
-            path_segments.push(segment);
-            // console.log(`${i} => [${segment.name}, ${segment.path}] slice => ${components.slice(0, i + 1)}`);
-        }
-
-        res.render("directory", {
-            "dir": unjoined_path.replace(/\\/g, "/"), 
-            "files": files, 
-            "num_dirs": num_dirs, 
-            "num_files": num_files,
-            "path_segments": path_segments});
+        })
         return;
     }
     
