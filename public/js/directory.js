@@ -9,20 +9,20 @@ let current_dir = "/";
 let observer = new IntersectionObserver((entries, observer)=>{
     console.log(entries);
     entries.forEach((entry)=>{
-        if (entry.isIntersecting)
-        {
+        // if (entry.isIntersecting)
+        // {
             entry.target.img_timeout = setTimeout(() => {
-                entry.target.src = `/files${entry.target.file_path}?width=120`;
-            }, 500);
-        }
-        else 
-        {
-            if (entry.target.img_timeout)
-            {
-                clearTimeout(entry.target.img_timeout);
-            }
-            entry.target.src = '/images/file-icon.svg';
-        }
+                entry.target.src = `/files${entry.target.file_path}?thumbnail`;
+            }, 1);
+        // }
+        // else 
+        // {
+        //     if (entry.target.img_timeout)
+        //     {
+        //         clearTimeout(entry.target.img_timeout);
+        //     }
+        //     entry.target.src = '/images/file-icon.svg';
+        // }
     })
 })
 
