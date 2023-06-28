@@ -4,9 +4,13 @@ const path = require("path");
 const fs = require("fs");
 const { log } = require("console");
 const sharp = require("sharp");
+const { mkdirp }  = require("mkdirp")
+
+const thumbnail_directory = "D:/filte/thumbnails";
+
+process.chdir("D:/media");
 
 
-process.chdir("D:/");
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -34,20 +38,29 @@ app.get("/files(/*)?", (req, res) => {
     // If path is a file, send it.
     if (fs.lstatSync(safe_path).isFile())
     {
-        if (["jpeg", "jpg", "png"].includes(path.extname(safe_path).slice(1).toLowerCase()))
-        {
-            if (req.query.width)
+        if (["jpeg", "jpg", "png"].includes(path.extname(safe_path).slice(1).toLowerCase()) && req.query.thumbnail != null)
+        {                
+            
+            const thumbnail_path = path.join(thumbnail_directory, unsafe_path);
+            console.log(`thumbnail_path: ${thumbnail_path}`);
+            if (fs.existsSync(thumbnail_path))
             {
-                if (req.query.width)
-                sharp(safe_path)
-                    .webp({quality: 50})
-                    .resize({width: parseInt(req.query.width)})
-                    .toBuffer()
-                    .then(data=> res.type("image/webp").send(data));
-                return;
+                res.type("image/webp").sendFile(thumbnail_path);
+            }
+            else
+            {
+                sharp(safe_path).webp({quality: 80}).resize({width: 160}).rotate().toBuffer().then((data)=>{
+                    res.type("image/webp").send(data);
+                    mkdirp(path.dirname(thumbnail_path)).then(made=>{
+                        fs.writeFile(thumbnail_path, data, ()=>{});
+                    });
+                }); 
             }
             
+            return;
         }
+            
+    
         res.sendFile(safe_path);
         return;
     

@@ -6,15 +6,15 @@ const path_segments_span = document.querySelector(".path-segments");
 
 let current_dir = "/";
 
+
 let observer = new IntersectionObserver((entries, observer)=>{
     console.log(entries);
     entries.forEach((entry)=>{
-        // if (entry.isIntersecting)
-        // {
-            entry.target.img_timeout = setTimeout(() => {
-                entry.target.src = `/files${entry.target.file_path}?thumbnail`;
-            }, 1);
-        // }
+        if (entry.isIntersecting)
+        {    
+            entry.target.src = `/files${entry.target.file_path}?thumbnail`;
+            observer.unobserve(entry.target);
+        }
         // else 
         // {
         //     if (entry.target.img_timeout)
@@ -23,7 +23,7 @@ let observer = new IntersectionObserver((entries, observer)=>{
         //     }
         //     entry.target.src = '/images/file-icon.svg';
         // }
-    })
+    });
 })
 
 function generate_path_segments(path)
