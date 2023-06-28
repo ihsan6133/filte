@@ -3,6 +3,8 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 const { log } = require("console");
+const sharp = require("sharp");
+
 
 process.chdir("D:/");
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,8 +34,23 @@ app.get("/files(/*)?", (req, res) => {
     // If path is a file, send it.
     if (fs.lstatSync(safe_path).isFile())
     {
+        if (["jpeg", "jpg", "png"].includes(path.extname(safe_path).slice(1).toLowerCase()))
+        {
+            if (req.query.width)
+            {
+                if (req.query.width)
+                sharp(safe_path)
+                    .webp({quality: 50})
+                    .resize({width: parseInt(req.query.width)})
+                    .toBuffer()
+                    .then(data=> res.type("image/webp").send(data));
+                return;
+            }
+            
+        }
         res.sendFile(safe_path);
         return;
+    
     }
 
     

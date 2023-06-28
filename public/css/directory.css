@@ -18,9 +18,15 @@ body
 }
 
 .file-container{
+
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.file-container:hover
+{
+    cursor: pointer;
 }
 
 .file-name
@@ -43,6 +49,12 @@ body
     height: 60px;
 }
 
+.path-segments
+{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
 .path-segments .segment
 {
     color: orange;

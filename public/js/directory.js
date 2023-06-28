@@ -6,6 +6,26 @@ const path_segments_span = document.querySelector(".path-segments");
 
 let current_dir = "/";
 
+let observer = new IntersectionObserver((entries, observer)=>{
+    console.log(entries);
+    entries.forEach((entry)=>{
+        if (entry.isIntersecting)
+        {
+            entry.target.img_timeout = setTimeout(() => {
+                entry.target.src = `/files${entry.target.file_path}?width=120`;
+            }, 500);
+        }
+        else 
+        {
+            if (entry.target.img_timeout)
+            {
+                clearTimeout(entry.target.img_timeout);
+            }
+            entry.target.src = '/images/file-icon.svg';
+        }
+    })
+})
+
 function generate_path_segments(path)
 {
     const container = path_segments_span;
@@ -30,15 +50,15 @@ function generate_path_segments(path)
         const seg_path = '/' + segments.slice(0, i + 1).join('/'); 
         console.log(`Seg: ${name} -> ${path}`);
 
-        container.innerHTML += "/";
+        container.insertAdjacentText("beforeend", "/");
 
         const seg = document.createElement("span");
         seg.classList.add("segment")
         seg.innerText = name;
         seg.dir_path = seg_path;
-        seg.onclick = (event) => {
+        seg.addEventListener("click",(event) => {
             navigate_to(event.currentTarget.dir_path);
-        }
+        });
 
         container.appendChild(seg);
         console.log(container);
@@ -61,17 +81,27 @@ function generate_element(file)
     }
     else if (file.type == "file")
     {
+        if (["jpeg", "jpg", "png"].includes(file.name.split('.').pop().toLowerCase()))
+        {
+            
+            icon.file_path = file.path;
+            
+            observer.observe(icon);
+            
+        }
+        
         icon.src = "/images/file-icon.svg";
+        
     }
-
+    
     const name = document.createElement("span");
     name.classList.add("file-name");
     name.innerText = file.name;
-
+    
     
     container.append(icon, name);
     container.file_data = file;
-
+    
     container.addEventListener("click", (event)=> {
         const file = event.currentTarget.file_data;
         if (file.type == "directory")
@@ -84,7 +114,7 @@ function generate_element(file)
         }
     })
     
-
+    
     return container;
 }
 
@@ -147,5 +177,3 @@ window.addEventListener("popstate", (event)=>{
 
 history.replaceState({path: current_dir}, "");
 set_dir('/');
-
-
