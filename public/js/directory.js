@@ -23,8 +23,8 @@ let observer = new IntersectionObserver((entries, observer)=>{
         //     }
         //     entry.target.src = '/images/file-icon.svg';
         // }
-    });
-})
+    })
+}, {rootMargin: "500px"});
 
 function generate_path_segments(path)
 {

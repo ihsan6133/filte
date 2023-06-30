@@ -42,7 +42,6 @@ app.get("/files(/*)?", (req, res) => {
         {                
             
             const thumbnail_path = path.join(thumbnail_directory, unsafe_path);
-            console.log(`thumbnail_path: ${thumbnail_path}`);
             if (fs.existsSync(thumbnail_path))
             {
                 res.type("image/webp").sendFile(thumbnail_path);
