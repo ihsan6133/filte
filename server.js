@@ -4,6 +4,7 @@ const WORKING_DIRECTORY = "D:\\media";
 const FFMPEG_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe";
 const FFPROBE_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffprobe.exe";
 
+
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -18,13 +19,7 @@ const videoExtensions = require('video-extensions');
 ffmpeg.setFfmpegPath(FFMPEG_PATH);
 ffmpeg.setFfprobePath(FFPROBE_PATH);
 
-
-
-process.chdir(WORKING_DIRECTORY);
-
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 
 app.get("/", (req, res)=> {
     res.sendFile("/views/index.html", {root: __dirname});
@@ -37,7 +32,7 @@ app.get("/files(/*)?", (req, res) => {
     // Sanintize the path
 
     const unjoined_path = path.normalize(unsafe_path).replace(/^(\.\.(\/|\\|$))+/, '');
-    const safe_path = path.join(process.cwd(), unjoined_path);
+    const safe_path = path.join(WORKING_DIRECTORY, unjoined_path);
     
     // Verify is the path exists 
     if (!fs.existsSync(safe_path))
@@ -128,6 +123,7 @@ app.get("/files(/*)?", (req, res) => {
                                 if (file.isSymbolicLink()) return "symlink"
                                 else return "other"
                             })(file),
+                            extension: path.extname(file.name).slice(1),
                             path: path.join(unjoined_path, file.name)
                         }
                     )),

@@ -4,7 +4,17 @@ const files_ul = document.querySelector(".ul-files");
 const dir_info_span = document.querySelector(".dir-info");
 const path_segments_span = document.querySelector(".path-segments");
 
+const file_icons = {
+    "directory": "/images/dir-icon.svg",
+    "file": "/images/file-icon.svg",
+    "symlink": "/images/symlink-icon.svg"
+}
+
+const image_file_extensions = ["jpg", "jpeg", "png", "gif", "webp", "raw", "heic", "heif", "bmp"];
+const video_extensions = ["3g2", "3gp", "aaf", "asf", "avchd", "avi", "drc", "flv", "m2v", "m3u8", "m4p", "m4v", "mkv", "mng", "mov", "mp2", "mp4", "mpe", "mpeg", "mpg", "mpv", "mxf", "nsv", "ogg", "ogv", "qt", "rm", "rmvb", "roq", "svi", "vob", "webm", "wmv", "yuv"]
+
 let current_dir = "/";
+
 
 
 let observer = new IntersectionObserver((entries, observer)=>{
@@ -60,94 +70,58 @@ function generate_path_segments(path)
     return container;
 }
 
+function isImage(file)
+{
+    return file.type == "file" && image_file_extensions.includes(file.extension.toLowerCase());
+}
+
+function isVideo(file)
+{
+    return file.type == "file" && video_extensions.includes(file.extension.toLowerCase());
+}
+
+function generateIcon(file)
+{
+    const container = document.createElement("div");
+    container.classList.add("file-icon-container");
+
+    const icon = document.createElement("img");
+    icon.classList.add("file-icon");
+    icon.src = file_icons[file.type];
+
+    if (isImage(file) || isVideo(file))
+    {
+        icon.file_path = file.path;
+        observer.observe(icon);
+    }
+
+    container.appendChild(icon);
+
+    if (isVideo(file))
+    {
+        const play_video_icon = document.createElement("img");
+        play_video_icon.classList.add("play-video-icon");
+        play_video_icon.src = "/images/play-video-icon.svg";
+        container.appendChild(play_video_icon);
+    }
+
+    return container;
+}
+
 function generate_element(file)
 {
     const container = document.createElement("div");
     container.title = file.name;
     container.classList.add("file-container");
     
-    const icon_container = document.createElement("div");
-    icon_container.classList.add("file-icon-container");
-    const icon = document.createElement("img");
-    icon.classList.add("file-icon");
+    const icon = generateIcon(file);
 
-    icon_container.appendChild(icon);
-    if(file.type == "directory")
-    {
-        icon.src = "/images/dir-icon.svg";
-    }
-    else if (file.type == "symlink")
-    {
-        icon.src = "/images/symlink-icon.svg";
-    }
-    else if (file.type == "file")
-    {
-        if (["jpeg", "jpg", "png"].includes(file.name.split('.').pop().toLowerCase()))
-        {
-            
-            icon.file_path = file.path;
-            
-            observer.observe(icon);
-            
-        }
-        else if ([
-            "3g2",
-            "3gp",
-            "aaf",
-            "asf",
-            "avchd",
-            "avi",
-            "drc",
-            "flv",
-            "m2v",
-            "m3u8",
-            "m4p",
-            "m4v",
-            "mkv",
-            "mng",
-            "mov",
-            "mp2",
-            "mp4",
-            "mpe",
-            "mpeg",
-            "mpg",
-            "mpv",
-            "mxf",
-            "nsv",
-            "ogg",
-            "ogv",
-            "qt",
-            "rm",
-            "rmvb",
-            "roq",
-            "svi",
-            "vob",
-            "webm",
-            "wmv",
-            "yuv"
-        ].includes(file.name.split('.').pop().toLowerCase()))
-        {
-            icon.file_path = file.path;
-            observer.observe(icon);
-
-            const play_video_icon = document.createElement("img");
-            play_video_icon.classList.add("play-video-icon");
-            play_video_icon.src = "/images/play-video-icon.svg";
-            icon_container.appendChild(play_video_icon);
-
-
-        }
-        
-        icon.src = "/images/file-icon.svg";
-        
-    }
-    
     const name = document.createElement("span");
     name.classList.add("file-name");
     name.innerText = file.name;
     
     
-    container.append(icon_container, name);
+    container.append(icon, name);
     container.file_data = file;
     
     container.addEventListener("click", (event)=> {
