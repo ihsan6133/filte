@@ -1,3 +1,9 @@
+const THUMBNAIL_DIRECTORY = "D:\\filte\\thumbnails\\";
+const WORKING_DIRECTORY = "D:\\media";
+
+const FFMPEG_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe";
+const FFPROBE_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffprobe.exe";
+
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -5,11 +11,16 @@ const fs = require("fs");
 const { log } = require("console");
 const sharp = require("sharp");
 const { mkdirp }  = require("mkdirp")
+const ffmpeg = require("fluent-ffmpeg");
+const videoExtensions = require('video-extensions');
 
-const thumbnail_directory = "D:/filte/thumbnails";
 
-process.chdir("D:/media");
+ffmpeg.setFfmpegPath(FFMPEG_PATH);
+ffmpeg.setFfprobePath(FFPROBE_PATH);
 
+
+
+process.chdir(WORKING_DIRECTORY);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -38,36 +49,64 @@ app.get("/files(/*)?", (req, res) => {
     // If path is a file, send it.
     if (fs.lstatSync(safe_path).isFile())
     {
-        if (["jpeg", "jpg", "png"].includes(path.extname(safe_path).slice(1).toLowerCase()) && req.query.thumbnail != null)
-        {                
-            
-            const thumbnail_path = path.join(thumbnail_directory, unsafe_path);
+
+        if (req.query.thumbnail != null)
+        {
+            const extension = path.extname(safe_path).slice(1).toLowerCase();
+            const thumbnail_path = path.join(THUMBNAIL_DIRECTORY, unjoined_path);
             if (fs.existsSync(thumbnail_path))
             {
                 res.type("image/webp").sendFile(thumbnail_path);
             }
-            else
+            else if(["jpeg", "jpg", "png"].includes(extension))
             {
                 sharp(safe_path).webp({quality: 80}).resize({width: 160}).rotate().toBuffer().then((data)=>{
                     res.type("image/webp").send(data);
                     mkdirp(path.dirname(thumbnail_path)).then(made=>{
                         fs.writeFile(thumbnail_path, data, ()=>{});
                     });
-                }); 
+                });
             }
-            
+            else if (videoExtensions.includes(extension))
+            {
+                console.log(safe_path);
+
+                mkdirp(path.dirname(thumbnail_path)).then(made=>{
+                    ffmpeg(safe_path)
+                    .on('end', ()=>{
+                        res.type('image/webp').sendFile(thumbnail_path);
+                    })
+                    .on('error', function(err, stdout, stderr) {
+                        console.log('Cannot process video: ' + err.message);
+                    })
+                    
+                    .screenshots({
+                        timestamps: ['0'],
+                        filename: path.basename(thumbnail_path),
+                        folder: path.dirname(thumbnail_path),
+                        size: '160x?'
+                    })
+                    .outputFormat("webp")
+                    .outputOption('-quality 80')
+
+                });
+
+
+            }
             return;
-        }
-            
     
+        }
+
+
+        console.log(safe_path);
         res.sendFile(safe_path);
         return;
     
     }
 
     
-    // If a path is directory, send files inside
-    if (fs.lstatSync(safe_path).isDirectory())
+    // If a path is directory or symlink, send files inside
+    if (fs.lstatSync(safe_path).isDirectory() || fs.lstatSync(safe_path).isSymbolicLink())
     {
         // Loop through files and directories.
 

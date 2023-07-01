@@ -19,7 +19,9 @@
   "dependencies": {
     "ejs": "^3.1.9",
     "express": "^4.18.2",
+    "fluent-ffmpeg": "^2.1.2",
     "mkdirp": "^3.0.1",
-    "sharp": "^0.32.1"
+    "sharp": "^0.32.1",
+    "video-extensions": "^1.2.0"
   }
 }

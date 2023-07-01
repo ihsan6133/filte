@@ -15,16 +15,8 @@ let observer = new IntersectionObserver((entries, observer)=>{
             entry.target.src = `/files${entry.target.file_path}?thumbnail`;
             observer.unobserve(entry.target);
         }
-        // else 
-        // {
-        //     if (entry.target.img_timeout)
-        //     {
-        //         clearTimeout(entry.target.img_timeout);
-        //     }
-        //     entry.target.src = '/images/file-icon.svg';
-        // }
     })
-}, {rootMargin: "500px"});
+}, {rootMargin: "500px 0%"});
 
 function generate_path_segments(path)
 {
@@ -71,13 +63,22 @@ function generate_path_segments(path)
 function generate_element(file)
 {
     const container = document.createElement("div");
+    container.title = file.name;
     container.classList.add("file-container");
     
+    const icon_container = document.createElement("div");
+    icon_container.classList.add("file-icon-container");
     const icon = document.createElement("img");
     icon.classList.add("file-icon");
+
+    icon_container.appendChild(icon);
     if(file.type == "directory")
     {
         icon.src = "/images/dir-icon.svg";
+    }
+    else if (file.type == "symlink")
+    {
+        icon.src = "/images/symlink-icon.svg";
     }
     else if (file.type == "file")
     {
@@ -89,6 +90,53 @@ function generate_element(file)
             observer.observe(icon);
             
         }
+        else if ([
+            "3g2",
+            "3gp",
+            "aaf",
+            "asf",
+            "avchd",
+            "avi",
+            "drc",
+            "flv",
+            "m2v",
+            "m3u8",
+            "m4p",
+            "m4v",
+            "mkv",
+            "mng",
+            "mov",
+            "mp2",
+            "mp4",
+            "mpe",
+            "mpeg",
+            "mpg",
+            "mpv",
+            "mxf",
+            "nsv",
+            "ogg",
+            "ogv",
+            "qt",
+            "rm",
+            "rmvb",
+            "roq",
+            "svi",
+            "vob",
+            "webm",
+            "wmv",
+            "yuv"
+        ].includes(file.name.split('.').pop().toLowerCase()))
+        {
+            icon.file_path = file.path;
+            observer.observe(icon);
+
+            const play_video_icon = document.createElement("img");
+            play_video_icon.classList.add("play-video-icon");
+            play_video_icon.src = "/images/play-video-icon.svg";
+            icon_container.appendChild(play_video_icon);
+
+
+        }
         
         icon.src = "/images/file-icon.svg";
         
@@ -99,12 +147,12 @@ function generate_element(file)
     name.innerText = file.name;
     
     
-    container.append(icon, name);
+    container.append(icon_container, name);
     container.file_data = file;
     
     container.addEventListener("click", (event)=> {
         const file = event.currentTarget.file_data;
-        if (file.type == "directory")
+        if (file.type == "directory" || file.type == "symlink")
         {
             navigate_to(file.path);
         }

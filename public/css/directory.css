@@ -22,6 +22,7 @@ body
     display: flex;
     flex-direction: column;
     align-items: center;
+    
 }
 
 .file-container:hover
@@ -46,6 +47,7 @@ body
 }
 .file-icon
 {
+    vertical-align: bottom;
     height: 70px;
 }
 
@@ -63,4 +65,19 @@ body
 .path-segments .segment:hover
 {
     cursor: pointer;
+}
+
+.file-icon-container
+{
+    position: relative;
+}
+
+.play-video-icon
+{
+    position: absolute;
+    top: 100%;
+    left: 100%;
+    transform: translate(-100%, -100%);
+    width: 20px;
+    filter: hue-rotate(300deg); 
 }
