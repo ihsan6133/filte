@@ -3,6 +3,8 @@
 const files_ul = document.querySelector(".ul-files");
 const dir_info_span = document.querySelector(".dir-info");
 const path_segments_span = document.querySelector(".path-segments");
+const loading_screen = document.querySelector(".loading-circle");
+
 
 const file_icons = {
     "directory": "/images/dir-icon.svg",
@@ -143,8 +145,8 @@ function generate_element(file)
 
 function fill_data(data)
 {
-    
-    files_ul.innerHTML = '';
+    loading_screen.style.visibility = "hidden";
+    files_ul.replaceChildren();
     data.files.forEach(file => {
         files_ul.appendChild(generate_element(file));
     });
@@ -163,7 +165,10 @@ function fill_data(data)
 }
 
 function set_dir(dir) {
-    files_ul.innerHTML = 'Loading..';
+    files_ul.replaceChildren();
+    loading_screen.style.visibility = "visible";
+
+
     current_dir = dir;
     fetch(`/files${dir}`)
         .then(res => res.json())
