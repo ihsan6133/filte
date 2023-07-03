@@ -112,6 +112,7 @@ function generateIcon(file)
 
 function generate_element(file)
 {
+
     const container = document.createElement("div");
     container.title = file.name;
     container.classList.add("file-container");
@@ -145,7 +146,7 @@ function generate_element(file)
 
 function fill_data(data)
 {
-    loading_screen.style.visibility = "hidden";
+    loading_screen.style.display = "none";
     files_ul.replaceChildren();
     data.files.forEach(file => {
         files_ul.appendChild(generate_element(file));
@@ -166,9 +167,9 @@ function fill_data(data)
 
 function set_dir(dir) {
     files_ul.replaceChildren();
-    loading_screen.style.visibility = "visible";
-
-
+    loading_screen.style.display = "block";
+    
+ 
     current_dir = dir;
     fetch(`/files${dir}`)
         .then(res => res.json())
@@ -200,6 +201,9 @@ window.addEventListener("popstate", (event)=>{
         console.error("Path does not exist!");
     }
 })
+
+
+
 
 
 history.replaceState({path: current_dir}, "");

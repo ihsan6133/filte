@@ -56,6 +56,7 @@ main
 
 .file-name
 {
+
     text-align: center;
     font-size:small;
     overflow-wrap: break-word;
@@ -102,26 +103,6 @@ main
     width: 20px;
     filter: hue-rotate(300deg); 
 }
-.image-display
-{
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.5);
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    padding: 100px;
-    box-sizing: border-box;
-}
-
-.image-display .image
-{
-    max-width: 100%;
-    max-height: 100%;
-    opacity: 1;
-}
 
 @keyframes rotate {
     from {
@@ -135,7 +116,6 @@ main
 .loading-circle
 {
     position: absolute;
-    
     border: solid 10px var(--text-bright);
     border-right-color: transparent;
     border-bottom-color: transparent;
@@ -150,7 +130,6 @@ main
     transform: translate(-50%, -50%);
 
     animation-name: rotate;
-    transition: all 0.5 ease-in;
     animation-duration:         1.0s; 
     animation-iteration-count:  infinite;
     animation-timing-function: linear; 

@@ -4,6 +4,8 @@ const WORKING_DIRECTORY = "D:\\media";
 const FFMPEG_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe";
 const FFPROBE_PATH = "D:\\Program Files\\ffmpeg\\bin\\ffprobe.exe";
 
+const DEVICE_NAME = "My PC";
+
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -12,7 +14,6 @@ const sharp = require("sharp");
 const { mkdirp }  = require("mkdirp")
 const ffmpeg = require("fluent-ffmpeg");
 const videoExtensions = require('video-extensions');
-
 const app = express();
 
 // Images supported by sharp library. (Heic/heif is not supported)
@@ -23,10 +24,12 @@ const sharp_image_extensions = ["jpg", "jpeg", "png", "gif", "webp"];
 ffmpeg.setFfmpegPath(FFMPEG_PATH);
 ffmpeg.setFfprobePath(FFPROBE_PATH);
 
+
+app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", (req, res)=> {
-    res.sendFile("/views/index.html", {root: __dirname});
+    res.render("index", {device_name: DEVICE_NAME});
 })
 
 
