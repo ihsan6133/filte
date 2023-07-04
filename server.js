@@ -9,7 +9,6 @@ const DEVICE_NAME = "My PC";
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { log } = require("console");
 const sharp = require("sharp");
 const { mkdirp }  = require("mkdirp")
 const ffmpeg = require("fluent-ffmpeg");
@@ -56,12 +55,30 @@ function sendThumbnail(res, safe_path, unjoined_path) {
     }
     else if(sharp_image_extensions.includes(extension))
     {
-        sharp(safe_path).webp({quality: 80}).resize({width: 160}).rotate().toBuffer().then((data)=>{
-            res.type("image/webp").send(data);
-            mkdirp(path.dirname(thumbnail_path)).then(made=>{
-                fs.writeFile(thumbnail_path, data, ()=>{});
-            });
-        }).catch((err)=>res.status(404).redirect("/images/file-icon.svg"));
+
+        sharp(safe_path)
+        .metadata()
+        .then((metadata)=>{
+            const {width, height} = (metadata.orientation || 0) >= 5
+            ? { width: metadata.height, height: metadata.width }
+            : { width: metadata.width,  height: metadata.height };
+            
+                
+            sharp(safe_path)
+            .resize((()=>{
+                if (height > width)
+                    return {height: 280}
+                else return {width: 280}
+            })())
+            .webp()
+            .rotate()
+            .toBuffer().then(data=>{
+                res.type("image/webp").send(data);
+                mkdirp(path.dirname(thumbnail_path)).then(made=>{
+                    fs.writeFile(thumbnail_path, data, ()=>{});
+                });
+            }).catch((err)=>{console.log("Failed to process jpeg", safe_path, err); res.status(404).redirect("/images/file-icon.svg")});
+        });
     }
     else if (videoExtensions.includes(extension))
     {
@@ -75,15 +92,13 @@ function sendThumbnail(res, safe_path, unjoined_path) {
             .on('error', function(err, stdout, stderr) {
                 console.log('Cannot process video: ' + err.message);
             })
-            
-            .screenshots({
-                timestamps: ['0'],
-                filename: path.basename(thumbnail_path),
-                folder: path.dirname(thumbnail_path),
-                size: '160x?'
-            })
+            .seekInput("00:00:00")
+            .output(thumbnail_path)
             .outputFormat("webp")
-            .outputOption('-quality 80')
+            .outputOption(
+                '-vf', 'scale=\'if(gt(iw,ih),280,-2)\':\'if(gt(iw,ih),-2,280)\'',
+                '-frames', '1'
+            ).run();
 
         });
 
