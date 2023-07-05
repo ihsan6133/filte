@@ -19,7 +19,6 @@ body
     display: flex;
     justify-content: space-between;
     flex: 0 1 auto; /* Don't grow, don't shrink, auto height */
-
 }
 
 h1
@@ -134,4 +133,100 @@ main
     animation-iteration-count:  infinite;
     animation-timing-function: linear; 
 
+}
+
+.image-display
+{  
+    display: flex;
+    flex-direction: column;
+
+    visibility: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 1);
+}
+
+
+.image
+{
+    width: 100%;
+    height: calc(100% - 60px);
+
+    object-fit: contain;
+    
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+
+}
+
+.image-settings
+{
+    display: flex;
+
+    justify-content: space-around;
+    gap: 10px;
+
+
+    background-color: #1e1e1e;
+    width: 100%;
+    height: 60px;
+    z-index: 10;
+}
+
+.image-settings button
+{
+    color: white;
+    padding: 0;
+    background-color:transparent;
+    border: none;
+
+}
+
+.image-settings button:hover
+{
+    opacity: 0.5;
+}
+
+.left-arrow, .right-arrow
+{
+    position: absolute;
+
+    width: 46px;
+    height: 100px;
+
+    top: 50%;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    border-radius: 10px;
+    z-index: 20;
+    content: '';
+
+    transform: translate(0, 30px) translate(0, -50%);
+}
+
+
+.left-arrow
+{
+    background-image: url("/images/left-arrow.svg");
+    left: 0;
+}
+
+.right-arrow
+{
+    background-image: url("/images/right-arrow.svg");
+    right: 0;
+    
+}
+
+.left-arrow:hover, .right-arrow:hover
+{
+    opacity: 0.5;
+    cursor: pointer;
 }

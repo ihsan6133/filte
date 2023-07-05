@@ -4,7 +4,19 @@ const files_ul = document.querySelector(".ul-files");
 const dir_info_span = document.querySelector(".dir-info");
 const path_segments_span = document.querySelector(".path-segments");
 const loading_screen = document.querySelector(".loading-circle");
+const image_display = document.querySelector(".image-display");
 
+const image = document.querySelector(".image");
+const image_settings = {
+    close: document.querySelector(".image-settings .close")
+}
+
+const left_arrow = document.querySelector(".left-arrow");
+const right_arrow = document.querySelector(".right-arrow");
+
+
+let loaded_images = [];
+let current_image_index = null;
 
 const file_icons = {
     "directory": "/images/dir-icon.svg",
@@ -12,7 +24,7 @@ const file_icons = {
     "symlink": "/images/symlink-icon.svg"
 }
 
-const image_file_extensions = ["jpg", "jpeg", "png", "gif", "webp", "raw", "heic", "heif", "bmp"];
+const image_file_extensions = ["jpg", "jpeg", "png", "gif", "webp", "raw", "bmp", "avif", "svg"];
 const video_extensions = ["3g2", "3gp", "aaf", "asf", "avchd", "avi", "drc", "flv", "m2v", "m3u8", "m4p", "m4v", "mkv", "mng", "mov", "mp2", "mp4", "mpe", "mpeg", "mpg", "mpv", "mxf", "nsv", "ogg", "ogv", "qt", "rm", "rmvb", "roq", "svi", "vob", "webm", "wmv", "yuv"]
 
 let current_dir = "/";
@@ -110,6 +122,14 @@ function generateIcon(file)
     return container;
 }
 
+function renderImage(file) {
+    image_display.style.visibility = "visible";
+    image.style.backgroundImage =  `url("/files/${encodeURIComponent(file.path.slice(1))}?thumbnail")` 
+    
+    image.src = "";
+    image.src = `/files${file.path}`;
+}
+
 function generate_element(file)
 {
 
@@ -127,6 +147,13 @@ function generate_element(file)
     container.append(icon, name);
     container.file_data = file;
     
+    if (isImage(file))
+    {
+        loaded_images.push(file);
+        container.image_index = loaded_images.length - 1;
+    }
+
+
     container.addEventListener("click", (event)=> {
         const file = event.currentTarget.file_data;
         if (file.type == "directory" || file.type == "symlink")
@@ -135,7 +162,17 @@ function generate_element(file)
         }
         else if (file.type == "file")
         {
-            window.location.href = `/files/${encodeURIComponent(file.path.slice(1))}`;
+            if (isImage(file))
+            {
+                current_image_index = event.currentTarget.image_index;
+                console.log("Image Displayed");
+                renderImage(file);
+
+            }
+            else
+            {
+                window.location.href = `/files/${encodeURIComponent(file.path.slice(1))}`;
+            }
         }
     })
     
@@ -147,6 +184,9 @@ function generate_element(file)
 function fill_data(data)
 {
     loading_screen.style.display = "none";
+    loaded_images = [];
+
+
     files_ul.replaceChildren();
     data.files.forEach(file => {
         files_ul.appendChild(generate_element(file));
@@ -156,13 +196,7 @@ function fill_data(data)
     
 
     dir_info_span.innerHTML = '';
-
-    
-    console.log(`Num Files: ${data.files.length}`);
-    
-    
-
-    
+    console.log(`Num Files: ${data.files.length}`);    
 }
 
 function set_dir(dir) {
@@ -202,9 +236,29 @@ window.addEventListener("popstate", (event)=>{
     }
 })
 
+image_settings.close.onclick = (event)=>{
+    image_display.style.visibility = "hidden";
+    image.style.backgroundImage =  "";
+    image.src = "";
+    current_image_index = 0;
+}
 
+left_arrow.onclick = (event)=>{
+    if (current_image_index == 0)
+        return;
 
+    current_image_index--;
+    renderImage(loaded_images[current_image_index]);
+}
 
+right_arrow.onclick = (event)=>{
+    if (current_image_index == loaded_images.length - 1)
+        return;
+
+    current_image_index++;
+    renderImage(loaded_images[current_image_index]);
+
+}
 
 history.replaceState({path: current_dir}, "");
 set_dir('/');
