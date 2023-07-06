@@ -7,6 +7,9 @@ const loading_screen = document.querySelector(".loading-circle");
 const image_display = document.querySelector(".image-display");
 
 const image = document.querySelector(".image");
+const thumbnail = document.querySelector(".thumbnail");
+
+
 const image_settings = {
     close: document.querySelector(".image-settings .close")
 }
@@ -124,10 +127,21 @@ function generateIcon(file)
 
 function renderImage(file) {
     image_display.style.visibility = "visible";
-    image.style.backgroundImage =  `url("/files/${encodeURIComponent(file.path.slice(1))}?thumbnail")` 
     
-    image.src = "";
+    thumbnail.src = `/files${file.path}?thumbnail`;
+    thumbnail.onload = ()=>{
+        thumbnail.style.visibility = "visible"; 
+        image.style.visibility = "hidden"
+        
+    };
+
+
     image.src = `/files${file.path}`;
+    image.onload = ()=>{
+        image.style.visibility = "visible";
+        thumbnail.style.visibility = "hidden";
+        
+    }
 }
 
 function generate_element(file)
@@ -238,8 +252,10 @@ window.addEventListener("popstate", (event)=>{
 
 image_settings.close.onclick = (event)=>{
     image_display.style.visibility = "hidden";
-    image.style.backgroundImage =  "";
     image.src = "";
+    thumbnail.src = "";
+    image.style.visibility = "hidden";
+    thumbnail.style.visibility = "hidden";
     current_image_index = 0;
 }
 
@@ -248,6 +264,10 @@ left_arrow.onclick = (event)=>{
         return;
 
     current_image_index--;
+
+    
+    image.onload = null;
+    thumbnail.onload = null;
     renderImage(loaded_images[current_image_index]);
 }
 
@@ -256,6 +276,9 @@ right_arrow.onclick = (event)=>{
         return;
 
     current_image_index++;
+    
+    image.onload = null;
+    thumbnail.onload = null;
     renderImage(loaded_images[current_image_index]);
 
 }

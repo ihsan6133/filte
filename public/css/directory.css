@@ -149,18 +149,20 @@ main
     background-color: rgba(0, 0, 0, 1);
 }
 
-
-.image
+.image-container
 {
+    position: relative;
     width: 100%;
     height: calc(100% - 60px);
+}
+
+.image, .thumbnail
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
 
     object-fit: contain;
-    
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-
 }
 
 .image-settings
